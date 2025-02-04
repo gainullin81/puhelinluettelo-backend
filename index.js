@@ -122,10 +122,18 @@ app.put("/api/persons/:id", (req, res, next) => {
 
 app.delete("/api/persons/:id", (req, res, next) => {
   Person.findByIdAndRemove(req.params.id)
-    .then(() => {
-      res.status(204).end();
+    .then((result) => {
+      console.log("Delete result:", result);
+      if (result) {
+        res.status(204).end();
+      } else {
+        res.status(404).json({ error: "person not found" });
+      }
     })
-    .catch((error) => next(error));
+    .catch((error) => {
+      console.error("Delete error:", error);
+      next(error);
+    });
 });
 
 const errorHandler = (error, req, res, next) => {
@@ -137,6 +145,7 @@ const errorHandler = (error, req, res, next) => {
     return res.status(400).json({ error: error.message });
   }
 
+  res.status(500).json({ error: error.message });
   next(error);
 };
 
