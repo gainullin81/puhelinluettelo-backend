@@ -120,33 +120,38 @@ app.put("/api/persons/:id", (req, res, next) => {
     .catch((error) => next(error));
 });
 
-app.delete("/api/persons/:id", (req, res, next) => {
-  Person.findByIdAndRemove(req.params.id)
-    .then((result) => {
-      console.log("Delete result:", result);
-      if (result) {
-        res.status(204).end();
-      } else {
-        res.status(404).json({ error: "person not found" });
-      }
-    })
-    .catch((error) => {
-      console.error("Delete error:", error);
-      next(error);
-    });
+app.delete("/api/persons/:id", async (req, res, next) => {
+  try {
+    const id = req.params.id;
+    console.log("Attempting to delete id:", id);
+
+    const deletedPerson = await Person.findByIdAndDelete(id);
+    console.log("Deleted person:", deletedPerson);
+
+    if (deletedPerson) {
+      res.status(200).json(deletedPerson);
+    } else {
+      res.status(404).json({ error: "Person not found" });
+    }
+  } catch (error) {
+    console.error("Delete error:", error);
+    next(error);
+  }
 });
 
 const errorHandler = (error, req, res, next) => {
-  console.error(error.message);
+  console.error("Error details:", error);
 
   if (error.name === "CastError") {
-    return res.status(400).send({ error: "malformatted id" });
+    return res.status(400).json({ error: "malformatted id" });
   } else if (error.name === "ValidationError") {
     return res.status(400).json({ error: error.message });
   }
 
-  res.status(500).json({ error: error.message });
-  next(error);
+  res.status(500).json({
+    error: "internal server error",
+    details: error.message,
+  });
 };
 
 app.use(errorHandler);
