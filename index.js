@@ -120,23 +120,14 @@ app.put("/api/persons/:id", (req, res, next) => {
     .catch((error) => next(error));
 });
 
-app.delete("/api/persons/:id", async (req, res, next) => {
-  try {
-    const id = req.params.id;
-    console.log("Attempting to delete id:", id);
-
-    const deletedPerson = await Person.findByIdAndDelete(id);
-    console.log("Deleted person:", deletedPerson);
-
-    if (deletedPerson) {
-      res.status(200).json(deletedPerson);
-    } else {
-      res.status(404).json({ error: "Person not found" });
-    }
-  } catch (error) {
-    console.error("Delete error:", error);
-    next(error);
-  }
+app.delete("/api/persons/:id", (req, res) => {
+  Person.findByIdAndDelete(req.params.id)
+    .then(() => {
+      res.status(204).end();
+    })
+    .catch(() => {
+      res.status(204).end();
+    });
 });
 
 const errorHandler = (error, req, res, next) => {
