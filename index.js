@@ -9,7 +9,12 @@ const app = express();
 app.use(express.json());
 app.use(
   cors({
-    origin: ["https://gainullin81.github.io", "http://localhost:5173"],
+    origin: [
+      "https://gainullin81.github.io",
+      "http://localhost:5173",
+      "http://localhost:3001",
+    ],
+    methods: ["GET", "POST", "DELETE", "PUT"],
     credentials: true,
   })
 );
